@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>927狼人杀专用工具</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1 user-scalable=0 user-scalable=no">
+    <!-- 导入样式 -->
+    <link href="mobile.css" rel="stylesheet">
+    <!-- 引入样式文件 -->
+    <link rel="stylesheet" href="//unpkg.com/vant@3/lib/index.css"/>
+    <!-- 引入 Vue 和 Vant 的 JS 文件 -->
+    <script src="//unpkg.com/vue@3"></script>
+
+    <script src="//unpkg.com/vant@3/lib/vant.min.js"></script>
+</head>
+<body>
+<div id="app">
+    <h1>🍖加入对局</h1>
+    <van-cell-group inset>
+        <van-field v-model="room" label="房间号" placeholder="请输入房间号" required></van-field>
+        <van-button type="primary" round block plain icon="aim" @click="loadRooms()">快速选房</van-button>
+        <van-field v-model="user" label="名字" placeholder="(选填)请输入你的名字"></van-field>
+    </van-cell-group>
+    <div style="height: 1rem"></div>
+    <van-button v-if="!joined" type="primary" block round icon="smile-comment-o" @click="joinGame">抽取角色卡</van-button>
+    <van-button v-if="joined" type="success" block round icon="smile-comment-o" @click="joined=false;room=''">重置页面
+    </van-button>
+    <div v-if="joined">
+        <div style="height: 1rem"></div>
+        <p>房间已加入 {{ nowJoinCount }} 玩家</p>
+    </div>
+    <div style="height: 1rem"></div>
+    <van-button type="warning" block round icon="vip-card-o" @click="god">上帝模式</van-button>
+
+    <van-popup v-model:show="showPicker" round position="bottom">
+        <van-picker
+                title="快速房间"
+                :columns="rooms"
+                @cancel="showPicker=false"
+                @confirm="onRoomSlected"
+        ></van-picker>
+    </van-popup>
+
+    <van-dialog v-model:show="godShow" title="上帝视角" show-cancel-button>
+
+    </van-dialog>
+</div>
+<script>
+    const {createApp} = Vue
+    const {Dialog} = vant;
+
+    const getRoleEmoji = (role) => {
+        switch (role) {
+            case '狼人':
+                return '🐺'
+            case '平民':
+                return '😅'
+            case '预言家':
+                return '🕵️‍♂️'
+            case '女巫':
+                return '👩‍🔬'
+        }
+    }
+    let app = createApp({
+        data() {
+            return {
+                message: 'Hello Vue!',
+                room: '',
+                user: '',
+                showPicker: false,
+                rooms: [],
+                godShow: false,
+                nowJoinCount: 0,
+                joined: false
+            }
+        },
+        mounted() {
+            setInterval(async () => {
+                if (this.$data.joined) {
+                    let room = this.$data.room
+                    if (room && room !== '') {
+                        let data = await (await fetch("/wolf/" + room, {method: 'get'})).json();
+                        this.$data.nowJoinCount = data.room.players.length
+                    }
+                }
+            }, 1000)
+        },
+        methods: {
+            onRoomSlected: function (value, index) {
+                this.$data.room = value
+                this.$data.showPicker = false;
+            },
+            async loadRooms() {
+                let data = await (await fetch("/wolf")).json();
+                this.$data.rooms = Object.keys(data.rooms)
+                this.$data.showPicker = true;
+            },
+            //加入游戏方法
+            async joinGame() {
+                //检查room填了没
+                let room = this.$data.room
+                let user = this.$data.user
+                if (!room || room === '') {
+                    Dialog.alert({
+                        title: '加入失败',
+                        message: '请填写房间，或者快速选房。',
+                    })
+                }
+                //从本地储存获取
+                if (localStorage.getItem(room)) {
+                    let s_role = localStorage.getItem(room);
+                    if (s_role !== '') {
+                        Dialog.alert({
+                            title: '重复加入',
+                            message: '你不可以重复加入，但我依然可以告诉你，你是「' + getRoleEmoji(s_role) + s_role + '」',
+                        })
+                        this.$data.joined = true
+                        return;
+                    }
+                }
+                //用fetch发起请求
+                let data = await (await fetch("/wolf/" + room, {method: 'post', body: JSON.stringify({user})})).json();
+                //获取返回数据
+                let role = data.role;
+                let left = data.left;
+                //提示成功
+                Dialog.alert({
+                    title: '加入成功',
+                    message: '你是「' + getRoleEmoji(role) + role + '」',
+                })
+                //本地保存自己的职业
+                localStorage.setItem(room, role)
+                this.$data.joined = true
+            },
+            async god() {
+                //检查room
+                let room = this.$data.room
+                if (!room || room === '') {
+                    Dialog.alert({
+                        title: '上帝失败',
+                        message: '请填写房间，或者快速选房。',
+                    })
+                }
+                let data = await (await fetch("/wolf/" + room, {method: 'get'})).json();
+                let room_data = data.room;
+
+                let msg = [`房间号${room}`, '👼以下是人员信息:']
+
+                room_data.players.forEach(x => {
+                    msg.push(`${x.user} 是 ${getRoleEmoji(x.role)}  ${x.role}`)
+                })
+
+                Dialog.alert({
+                    title: '查看信息',
+                    message: msg.join('\n'),
+                })
+
+
+                //this.$data.godShow = true
+            }
+        }
+    });
+
+    app.use(vant).mount('#app')
+    app.use(vant.Button);
+    app.use(vant.Field);
+    app.use(vant.CellGroup);
+    app.use(vant.Picker);
+    app.use(Dialog);
+</script>
+</body>
+</html>
