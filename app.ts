@@ -40,12 +40,13 @@ router.post("/wolf/:id", async (ctx, next) => {
 
     let room = rooms[id]!;
     let user = JSON.parse(ctx.request.body).user ?? "未命名";
+    let uid = JSON.parse(ctx.request.body).uid;
     //获取一个随机角色
     let role = room.pool[Math.floor(Math.random() * room.pool.length)];
     //在pool角色池中移除角色
     room.pool.splice(room.pool.indexOf(role), 1)
     //将角色添加进room,这里等同于user:user role:role
-    room.players.push({user, role})
+    room.players.push({user, role, uid})
     //返回数据
     ctx.body = {code: 0, role, left: room.pool.length};
 })
