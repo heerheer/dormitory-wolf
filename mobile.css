@@ -4,7 +4,30 @@ html {
 
 #app {
     text-align: center;
-    margin: 3rem;
-    margin-top: 10rem;
+    margin-top: 9rem;
+    margin-left: 10%;
+    margin-right: 10%;
 
+}
+
+.wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.role-card {
+    width: 100%;
+    animation-name: example;
+    animation-duration: 3s;
+}
+
+@-webkit-keyframes example {
+    from {
+        transform: rotateY(-180deg);
+    }
+    to {
+        transform: rotateY(0deg);
+    }
 }
