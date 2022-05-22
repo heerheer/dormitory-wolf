@@ -31,3 +31,7 @@ html {
         transform: rotateY(0deg);
     }
 }
+
+.van-cell {
+    align-items: center;
+}

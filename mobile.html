@@ -15,64 +15,78 @@
 </head>
 <body>
 <div id="app">
-    <div v-if="tab ==='wolf'">
-        <h1>🍖加入狼人杀</h1>
-        <van-cell-group inset>
-            <van-field v-model="room" label="房间号" placeholder="请输入房间号" required></van-field>
-            <div style="height: 1rem"></div>
+    <div v-if="tab === 'wolf' || tab === 'undercover'">
+        <div v-if="tab ==='wolf'">
+            <h1>🍖加入狼人杀</h1>
+            <van-cell-group inset>
+                <van-field v-model="room" label="房间号" placeholder="请输入房间号" required></van-field>
+                <div style="height: 1rem"></div>
+                <van-field v-model="user" required label="名字" placeholder="请输入你的名字"></van-field>
+                <div style="height: 1rem"></div>
 
-            <van-button v-if="!joined" type="primary" round block plain icon="aim" @click="loadRooms('wolf')">快速选房
+                <van-button v-if="!joined" type="primary" round block plain icon="aim" @click="loadRooms('wolf')">快速选房
+                </van-button>
+                <div style="height: 1rem"></div>
+                <van-button v-if="!joined" type="primary" round block plain icon="aim" @click="create_room_data.show=true">
+                    创建房间
+                </van-button>
+                <div style="height: 1rem"></div>
+
+            </van-cell-group>
+            <div style="height: 1rem"></div>
+            <van-button v-if="!joined" type="primary" block round icon="smile-comment-o" @click="joinGame('wolf')">抽取角色卡
             </van-button>
-            <div style="height: 1rem"></div>
+            <van-button v-if="joined" type="success" block round icon="smile-comment-o" @click="joined=false;room=''">重置页面
+            </van-button>
+            <div v-if="joined">
+                <div style="height: 1rem"></div>
+                <p>房间已加入 {{ nowJoinCount }} 玩家</p>
+            </div>
 
-            <van-field v-model="user" required label="名字" placeholder="请输入你的名字"></van-field>
-        </van-cell-group>
-        <div style="height: 1rem"></div>
-        <van-button v-if="!joined" type="primary" block round icon="smile-comment-o" @click="joinGame('wolf')">抽取角色卡
-        </van-button>
-        <van-button v-if="joined" type="success" block round icon="smile-comment-o" @click="joined=false;room=''">重置页面
-        </van-button>
-        <div v-if="joined">
+        </div>
+        <div v-if="tab ==='undercover2'">
+            <h1>🕵️‍谁是卧底</h1>
+            <van-cell-group inset>
+                <van-field v-model="room" label="房间号" placeholder="请输入房间号" required></van-field>
+                <div style="height: 1rem"></div>
+
+                <van-button v-if="!joined" type="primary" round block plain icon="aim" @click="loadRooms('undercover')">快速选房
+                </van-button>
+                <div style="height: 1rem"></div>
+
+                <van-field v-model="user" required label="名字" placeholder="请输入你的名字"></van-field>
+            </van-cell-group>
             <div style="height: 1rem"></div>
-            <p>房间已加入 {{ nowJoinCount }} 玩家</p>
+            <van-button v-if="!joined" type="primary" block round icon="smile-comment-o" @click="joinGame('undercover')">
+                抽取你的词语
+            </van-button>
+            <van-button v-if="joined" type="success" block round icon="smile-comment-o" @click="joined=false;room=''">重置页面
+            </van-button>
+            <div v-if="joined">
+                <div style="height: 1rem"></div>
+                <p>房间已加入 {{ nowJoinCount }} 玩家</p>
+            </div>
+            <div style="height: 1rem"></div>
+            <van-button v-if="joined" type="warning" block round icon="flag-o" @click="showVote()">投票模式</van-button>
+            <div style="height: 1rem" v-if="joined"></div>
+            <van-button type="warning" block round icon="vip-card-o" @click="god()">上帝模式</van-button>
+            <div style="height: 1rem"></div>
+            <van-button type="danger" block round icon="delete-o" @click="deleteRoom" v-if="(room&&room!=='')">删除房间
+            </van-button>
+        </div>
+
+        <div v-if="tab == 'undercover'">
+            维护中
         </div>
         <div style="height: 1rem"></div>
-        <van-button type="warning" block round icon="vip-card-o" @click="god('wolf')">上帝模式</van-button>
+        <van-button type="warning" block round icon="vip-card-o" @click="god()">上帝模式</van-button>
         <div style="height: 1rem"></div>
         <van-button type="danger" block round icon="delete-o" @click="deleteRoom" v-if="(room&&room!=='')">删除房间
         </van-button>
     </div>
 
-    <div v-if="tab ==='undercover'">
-        <h1>🕵️‍谁是卧底</h1>
-        <van-cell-group inset>
-            <van-field v-model="room" label="房间号" placeholder="请输入房间号" required></van-field>
-            <div style="height: 1rem"></div>
 
-            <van-button v-if="!joined" type="primary" round block plain icon="aim" @click="loadRooms('undercover')">快速选房
-            </van-button>
-            <div style="height: 1rem"></div>
 
-            <van-field v-model="user" required label="名字" placeholder="请输入你的名字"></van-field>
-        </van-cell-group>
-        <div style="height: 1rem"></div>
-        <van-button v-if="!joined" type="primary" block round icon="smile-comment-o" @click="joinGame('undercover')">
-            抽取你的词语
-        </van-button>
-        <van-button v-if="joined" type="success" block round icon="smile-comment-o" @click="joined=false;room=''">重置页面
-        </van-button>
-        <div v-if="joined">
-            <div style="height: 1rem"></div>
-            <p>房间已加入 {{ nowJoinCount }} 玩家</p>
-        </div>
-        <div style="height: 1rem"></div>
-        <van-button v-if="joined" type="warning" block round icon="flag-o" @click="showVote()">投票模式</van-button>
-        <div style="height: 1rem" v-if="joined"></div>
-        <van-button type="warning" block round icon="vip-card-o" @click="god('undercover')">上帝模式</van-button>
-        <div style="height: 1rem"></div>
-        <van-button type="danger" block round icon="delete-o" @click="deleteRoom" v-if="(room&&room!=='')">删除房间
-        </van-button>
-    </div>
 
     <div v-if="tab =='me'">
         <h1>🥂我的信息</h1>
@@ -83,6 +97,8 @@
 
         </van-cell-group>
     </div>
+
+
 
     <van-overlay :show="role_img.show" @click="role_img.show = false">
 
@@ -117,11 +133,47 @@
             <van-cell-group inset>
                 <van-cell v-for="player in voteData" :title="player.user">
                     <template #right-icon>
-                        <van-button @click="votePlayer(player.user)">投他</van-button>
+                        <van-button type="warning" @click="votePlayer(player.user)">投他</van-button>
                     </template>
                 </van-cell>
             </van-cell-group>
         </div>
+    </van-dialog>
+
+    <van-dialog @confirm="createRoom" style="background: #f7f8fa" confirm-button-text="创建"
+                v-model:show="create_room_data.show" title="创建房间" show-cancel-button>
+        <h4>🌍基础配置</h4>
+        <van-cell-group inset>
+            <van-field v-model="create_room_data.data.id" label="自定义ID" placeholder="不填随机生成"></van-field>
+            <van-cell left title="是否推送给全体用户">
+                <template #right-icon>
+                    <van-switch v-model="create_room_data.broadcast"></van-switch>
+                </template>
+            </van-cell>
+        </van-cell-group>
+        <h4>{{ create_room_data.mode === 'wolf' ? '😓' : '🤐' }}选择模式</h4>
+        <van-radio-group v-model="create_room_data.mode">
+            <van-cell-group inset>
+                <van-cell title="狼人杀" clickable @click="create_room_data.mode = 'wolf'">
+                    <template #right-icon>
+                        <van-radio name="wolf"/>
+                    </template>
+                </van-cell>
+                <van-cell title="谁是卧底" clickable @click="create_room_data.mode = 'undercover'">
+                    <template #right-icon>
+                        <van-radio name="undercover"/>
+                    </template>
+                </van-cell>
+            </van-cell-group>
+        </van-radio-group>
+        <h4>{{ create_room_data.mode === 'wolf' ? '😓' : '🤐' }}配置选项</h4>
+        <van-cell-group inset>
+            <van-field v-model="create_room_data.data.wolf" label="狼人数量" placeholder="不填默认为0"></van-field>
+            <van-field v-model="create_room_data.data.witch" label="女巫数量" placeholder="不填默认为0"></van-field>
+            <van-field v-model="create_room_data.data.guard" label="守卫数量" placeholder="不填默认为0"></van-field>
+            <van-field v-model="create_room_data.data.hunter" label="猎人" placeholder="不填默认为0"></van-field>
+            <van-field v-model="create_room_data.data.human" label="平民数量" placeholder="不填默认为0"></van-field>
+        </van-cell-group>
     </van-dialog>
 
 
@@ -152,16 +204,21 @@
         async getRooms() {
             return (await (await fetch("/rooms")).json()).rooms;
         },
-        async getRoom(room, mode) {
-            return (await (await fetch(`/${mode}/` + room, {method: 'get'})).json()).room;
+        async getRoom(room) {
+            return (await (await fetch(`/rooms/` + room, {method: 'get'})).json()).room;
+        },
+        async createRoom(id, mode, data, broadcast) {
+            let room = id ?? 'undefined'
+            let config = {mode, [mode]: data, broadcast};
+            return (await (await fetch(`/rooms/${room}`, {method: 'put', body: JSON.stringify(config)})).json());
         },
         async delRoom(room) {
             return await fetch("/rooms/" + room, {method: 'delete'});
         },
-        async joinRoom(room, user, uid, mode) {
-            return (await (await fetch("/wolf/" + room, {
+        async joinRoom(room, user, uid) {
+            return (await (await fetch("/rooms/" + room, {
                 method: 'post',
-                body: JSON.stringify({user, uid, mode})
+                body: JSON.stringify({user, uid})
             })).json()).role
         },
         getPicLink(role) {
@@ -180,6 +237,8 @@
     const turnUndercoverDara = () => {
 
     }
+
+    let ws = undefined;
     let app = createApp({
         data() {
             return {
@@ -194,16 +253,17 @@
                 tab: 'wolf',
                 role_img: {src: '', show: false},
                 voteShow: false,
-                voteData: undefined
+                voteData: undefined,
+                create_room_data: {show: false, mode: 'wolf', data: {}, broadcast: false}
             }
         },
         mounted() {
             setInterval(async () => {
                 if (this.$data.joined) {
                     let room = this.$data.room
-                    if (room && room !== '') {
-                        let data = await api.getRoom(room, this.$data.tab)
-                        this.$data.nowJoinCount = data.players.length
+                    if (room && room !== '' && this.tab !== 'me') {
+                        let data = await api.getRoom(room)
+                        this.nowJoinCount = data.players.length
                     }
                 }
             }, 3000)
@@ -213,8 +273,41 @@
                 if (localStorage.getItem('user.name')) {
                     this.user = localStorage.getItem('user.name')
                     Toast('欢迎,' + this.user)
+                } else {
+
                 }
             }
+
+            //打开websocket连接证明用户上线
+            ws = new WebSocket("ws://" + window.location.hostname + ":" + "8898")
+
+            console.log("WS建立完成~")
+
+            ws.onopen = () => {
+                ws.send(JSON.stringify({action: 'con', data: {user: this.user, uid: this.getLocalUid()}}))
+            }
+
+            ws.onmessage = event => {
+                let data = JSON.parse(event.data)
+                if (data.action === 'room_broadcast') {
+                    let id = data.data.id;
+                    let mode = data.data.mode
+                    console.log("收到房间推送广播,id:" + id)
+                    window.navigator.vibrate(300)
+                    Dialog.confirm({
+                        title: '房间推送',
+                        message: '你收到了一条房间推送\n' + `🛴游戏模式:${mode}` + '\n' + `⛲房间ID:${id}` + "点击确定加入房间"
+                    }).then(() => {
+                        this.$data.room = id;
+                        this.joinGame(id);
+                    }).catch(() => {
+                        console.log("用户取消进入推送房间")
+                    })
+
+                }
+
+            }
+
         },
         methods: {
             onTabChange(active) {
@@ -236,15 +329,16 @@
                 this.$data.showPicker = true;
             },
             //加入游戏方法
-            async joinGame(mode) {
-                if (!mode) {
-                    mode = this.tab;
-                }
+            async joinGame(roomId) {
                 //检查room填了没
                 let room = this.$data.room
-                let user = this.$data.user
+                //若vue data中的room绑定为空，则尝试将方法参数的数据填入
+                if (room === undefined || room === '') {
+                    room = roomId
+                }
+                let user = this.user
                 let uid = getLocalUid();
-                if (!room || room === '') {
+                if (!room || room === '' ) {
                     Dialog.alert({
                         title: '加入失败',
                         message: '请填写房间，或者快速选房。',
@@ -260,7 +354,7 @@
                 }
                 localStorage.setItem('user.name', this.user)
 
-                let room_data = await api.getRoom(room, mode);
+                let room_data = await api.getRoom(room);
                 if (room_data.players.findIndex(x => x.uid === uid) >= 0) {
                     let role = room_data.players.find(x => x.uid === uid).role
                     Dialog.alert({
@@ -271,13 +365,14 @@
                     return;
                 }
 
-                if (mode === 'wolf') {
+                if (room_data.mode === 'wolf') {
                     //用fetch发起请求
-                    let role = await api.joinRoom(room, user, uid, 'wolf');
+                    let role = await api.joinRoom(room, user, uid);
+                    //角色卡片数据
                     this.role_img.src = api.getPicLink(role);
                     this.role_img.show = true;
-                } else if (mode === 'undercover') {
-                    let role = await api.joinRoom(room, user, uid, 'undercover');
+                } else if (room_data.mode === 'undercover') {
+                    let role = await api.joinRoom(room, user, uid);
                     Dialog.alert({
                         title: '加入成功',
                         message: '你的词语是「' + role + '」',
@@ -287,10 +382,7 @@
 
 
             },
-            async god(mode) {
-                if (!mode) {
-                    mode = this.tab;
-                }
+            async god() {
                 //检查room
                 let room = this.$data.room
                 if (!room || room === '') {
@@ -300,21 +392,20 @@
                     })
                     return;
                 }
-                let room_data = await api.getRoom(room, mode);
-
-                let msg = [`房间号${room}`, '👼以下是人员信息:']
-
-                room_data.players.forEach(x => {
-                    msg.push(`${x.user} 是 ${getRoleEmoji(x.role)}  ${x.role}`)
+                Dialog.confirm({
+                    title: '危险操作',
+                    message: '上帝模式适合观众、上帝与已经死亡的玩家，你确定要打开上帝视角吗?',
+                }).then(async () => {
+                    let room_data = await api.getRoom(room);
+                    let msg = [`房间号${room}`, '👼以下是人员信息:']
+                    room_data.players.forEach(x => {
+                        msg.push(`${x.user} 是 ${getRoleEmoji(x.role)}  ${x.role}`)
+                    })
+                    Dialog.alert({
+                        title: '查看信息',
+                        message: msg.join('\n'),
+                    })
                 })
-
-                Dialog.alert({
-                    title: '查看信息',
-                    message: msg.join('\n'),
-                })
-
-
-                //this.$data.godShow = true
             },
             async deleteRoom() {
                 let room = this.$data.room
@@ -337,13 +428,13 @@
                     })
                     return;
                 }
-                let room_data = await api.getRoom(room, 'undercover');
+                let room_data = await api.getRoom(room);
                 //获取当前投票数据
                 let temp = []
                 room_data.players.forEach(x => {
                     temp.push({
                         user: x.user,
-                        role: (x.role == '白板') ? '白板' : x.role === room_data.undercover_data.undercover_word ? '卧底' : '平民'
+                        role: (x.role === '白板') ? '白板' : x.role === room_data.undercover_data.undercover_word ? '卧底' : '平民'
                     })
                 })
 
@@ -353,11 +444,41 @@
             votePlayer(user) {
                 let u = this.voteData.find(x => x.user === user);
                 if (u.role)
-                    Dialog.alert({
-                        message: user + '的身份...' + u.role
+                    Dialog.confirm({
+                        title: '危险操作!',
+                        message: '你目前作为全场唯一一个管理人员，要选择他为「❗这个回合票出的对象」，你确定要这么做吗!'
+                    }).then(x => {
+                        Dialog.alert({
+                            message: user + '的身份...' + u.role + '\n请牢记哦...(告诉大家就行)'
+                        })
                     })
-            }
+            },
+            async createRoom() {
 
+                let config = this.create_room_data;
+
+                if (config.mode === 'wolf') {
+                    let pool = []
+                    console.log(config)
+                    pool.push(...new Array(Number(config.data.human ?? 0)).fill('平民'))
+                    pool.push(...new Array(Number(config.data.witch ?? 0)).fill('女巫'))
+                    pool.push(...new Array(Number(config.data.guard ?? 0)).fill('守卫'))
+                    pool.push(...new Array(Number(config.data.hunter ?? 0)).fill('猎人'))
+                    pool.push(...new Array(Number(config.data.wolf ?? 0)).fill('狼人'))
+                    if (pool.length <= 0) {
+                        Dialog.alert({message: '人数不可小于2'});
+                        return;
+                    }
+                    let resp = await api.createRoom(
+                        config.data.id,
+                        config.mode,
+                        {pool},
+                        config.broadcast
+                    )
+                    Toast(resp)
+
+                }
+            }
         }
     });
 
@@ -367,7 +488,9 @@
     app.use(vant.CellGroup);
     app.use(vant.Picker);
     app.use(vant.Tabbar, vant.TabbarItem);
-    app.use(vant.Toast);
+    app.use(vant.Toast, vant.DropdownItem, vant.DropdownMenu);
+    app.use(vant.Radio, vant.RadioGroup);
+    app.use(vant.Switch);
     app.use(Dialog);
 </script>
 </body>
